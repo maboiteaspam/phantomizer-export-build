@@ -29,6 +29,7 @@ module.exports = function(grunt) {
                 }else{
                     var output_f = (output+"/"+f).replace("//","/")
                     grunt.file.copy(source+"/"+f, output_f)
+                    grunt.log.ok("copying "+source+"/"+f+" "+output_f);
                 }
             }
         }
@@ -55,8 +56,15 @@ module.exports = function(grunt) {
         }else if (grunt_config.routing){
             for( var n in grunt_config.routing ){
                 var route = grunt_config.routing[n];
-                var url = route.template;
-                tasks.push("phantomizer-html-jitbuild:"+build_target+":"+url)
+                if( route.urls ){
+                    for(var n in route.urls ){
+                        var url = route.urls[n];
+                        tasks.push("phantomizer-html-jitbuild:"+build_target+":"+url)
+                    }
+                }else{
+                    var url = route.template;
+                    tasks.push("phantomizer-html-jitbuild:"+build_target+":"+url)
+                }
             }
         }
         grunt.task.run( tasks );
@@ -79,7 +87,6 @@ module.exports = function(grunt) {
 
         for( var n in paths ){
             for( var k in copy_patterns ){
-                grunt.log.ok("copying "+paths[n]+""+copy_patterns[n]);
                 copy_recusive(paths[n], copy_patterns[k], export_dir);
             }
         }
