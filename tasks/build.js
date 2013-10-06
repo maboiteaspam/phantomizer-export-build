@@ -29,7 +29,7 @@ module.exports = function(grunt) {
                 }else{
                     var output_f = (output+"/"+f).replace("//","/")
                     grunt.file.copy(source+"/"+f, output_f)
-                    grunt.log.ok("copying "+source+"/"+f+" "+output_f);
+                    //grunt.log.ok("copying "+source+"/"+f+" "+output_f);
                 }
             }
         }
@@ -49,27 +49,68 @@ module.exports = function(grunt) {
         }
 
         var tasks = [];
-        if( options.urls ){
-            for( var n in options.urls ){
-                tasks.push("phantomizer-html-jitbuild:"+build_target+":"+options.urls[n])
-            }
-        }else if (grunt_config.routing){
-            for( var n in grunt_config.routing ){
-                var route = grunt_config.routing[n];
-                if( route.urls ){
-                    for(var n in route.urls ){
-                        var url = route.urls[n];
-                        tasks.push("phantomizer-html-jitbuild:"+build_target+":"+url)
+        read_option_urls(options,function(urls){
+            if( urls.length ==0 && grunt_config.routing ){
+                urls = [];
+                for( var n in grunt_config.routing ){
+                    var route = grunt_config.routing[n];
+                    if( route.urls ){
+                        for(var n in route.urls ){
+                            urls.push(route.urls[n])
+                        }
+                    }else{
+                        tasks.push(route.template)
                     }
-                }else{
-                    var url = route.template;
-                    tasks.push("phantomizer-html-jitbuild:"+build_target+":"+url)
                 }
             }
-        }
-        grunt.task.run( tasks );
-
+            for( var n in urls ){
+                tasks.push("phantomizer-html-jitbuild:"+build_target+":"+urls[n])
+            }
+            grunt.task.run( tasks );
+        });
     });
+
+
+
+    grunt.registerMultiTask("phantomizer-build2", "", function () {
+
+        var options = this.options();
+
+        var build_target = options.build_target;
+        var clean_dir = options.clean_dir;
+
+        for( var n in clean_dir ){
+            deleteFolderRecursive(clean_dir[n])
+            grunt.file.mkdir(clean_dir[n])
+        }
+
+        var tasks = [];
+
+        var add_grunt_task = function(urls, build_target){
+            grunt.file.mkdir("tmp")
+            var urls_file = "tmp/urls.json";
+            grunt.file.write(urls_file, JSON.stringify(urls));
+
+            var opt = grunt.config.get("phantomizer-html-builder2");
+            if(!opt[build_target]) opt[build_target] = {};
+            if(!opt[build_target].options) opt[build_target].options = {};
+
+            opt[build_target].options.urls_file = urls_file;
+
+            grunt.config.set("phantomizer-html-builder2", opt);
+            tasks.push("phantomizer-html-builder2:"+build_target)
+            grunt.task.run( tasks );
+        }
+
+
+        read_option_urls(options,function(urls){
+            add_grunt_task(urls, build_target);
+        });
+    });
+
+
+
+
 
     grunt.registerMultiTask("phantomizer-export-build", "", function () {
         var done = this.async();
@@ -105,4 +146,46 @@ module.exports = function(grunt) {
         done();
     });
 
+
+
+    function read_option_urls(options,then){
+        var urls = [];
+        if (options.urls_datasource){
+            grunt.log.ok("Reading urls from URL "+options.urls_datasource);
+            read_url(options.urls_datasource, function(status,content){
+                urls = JSON.parse(content);
+                then(urls);
+            });
+        }else if (options.urls_file){
+            var content = fs.readFileSync(options.urls_file);
+            grunt.log.ok("Reading urls from file "+options.urls_file);
+            urls = JSON.parse(content);
+            then(urls);
+        }else if( options.urls ){
+            grunt.log.ok("Reading urls inlined from options");
+            then(options.urls);
+        }else if (options.url){
+            urls = [options.url];
+            grunt.log.ok("Reading urls inlined from options");
+            then(urls);
+        }
+    }
+    function read_url(url,then){
+        var content = "";
+        http.get(url, function(res) {
+            console.log("Got response: " + res.statusCode);
+            res.setEncoding('utf8');
+            res.on('data', function (chunk) {
+                content+=chunk;
+                console.log('BODY: ' + chunk);
+            });
+            res.on('end', function() {
+                content = JSON.parse(content);
+                if( then) then(true,content);
+            });
+        }).on('error', function(e) {
+                console.log("Got error: " + e.message);
+                if( then) then(false,content);
+            });
+    }
 };
