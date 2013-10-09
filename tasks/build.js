@@ -78,6 +78,10 @@ module.exports = function(grunt) {
 
         var build_target = options.build_target;
         var clean_dir = options.clean_dir;
+        var out_path = options.out_path;
+        var export_dir = options.export_dir;
+        var meta_dir = options.meta_dir;
+        var current_target = this.target;
 
         for( var n in clean_dir ){
             deleteFolderRecursive(clean_dir[n])
@@ -86,29 +90,21 @@ module.exports = function(grunt) {
 
         var tasks = [];
 
-        var add_grunt_task = function(urls, build_target){
-            grunt.file.mkdir("tmp")
-            var urls_file = "tmp/urls.json";
-            grunt.file.write(urls_file, JSON.stringify(urls));
-
-            var opt = grunt.config.get("phantomizer-html-builder2");
-            if(!opt[build_target]) opt[build_target] = {};
-            if(!opt[build_target].options) opt[build_target].options = {};
-
-            opt[build_target].options.urls_file = urls_file;
-
-            grunt.config.set("phantomizer-html-builder2", opt);
-            tasks.push("phantomizer-html-builder2:"+build_target)
-            grunt.task.run( tasks );
-        }
-
 
         read_option_urls(options,function(urls){
-            add_grunt_task(urls, build_target);
+            queue_urls_html_build(tasks, urls, build_target);
+
+            tasks.push('phantomizer-export-build:'+current_target);
+
+            queue_gm_merge(tasks, current_target, [export_dir], export_dir);
+            queue_img_opt_dir(tasks, current_target, [export_dir]);
+            queue_css_img_merge_dir(tasks, current_target, meta_dir, [export_dir], export_dir);
+
+            tasks.push( "throttle:100" );
+
+            grunt.task.run( tasks );
         });
     });
-
-
 
 
 
@@ -145,6 +141,7 @@ module.exports = function(grunt) {
 
         done();
     });
+
 
 
 
@@ -188,4 +185,93 @@ module.exports = function(grunt) {
                 if( then) then(false,content);
             });
     }
+
+
+
+
+
+    function queue_urls_html_build( tasks, urls, build_target){
+        grunt.file.mkdir("tmp")
+        var urls_file = "tmp/urls.json";
+        grunt.file.write(urls_file, JSON.stringify(urls));
+
+        var opt = grunt.config.get("phantomizer-html-builder2");
+        if(!opt[build_target]) opt[build_target] = {};
+        if(!opt[build_target].options) opt[build_target].options = {};
+
+        opt[build_target].options.urls_file = urls_file;
+
+        grunt.config.set("phantomizer-html-builder2", opt);
+        tasks.push("phantomizer-html-builder2:"+build_target)
+    }
+    function queue_img_opt_dir( sub_tasks, current_target, paths ){
+
+        var jit_target = "jit"+sub_tasks.length;
+        var task_name = "phantomizer-dir-imgopt";
+        var task_options = grunt.config(task_name) || {};
+
+        task_options = clone_subtasks_options(task_options, jit_target, current_target);
+        if(!task_options[jit_target].options) task_options[jit_target].options = {};
+        task_options[jit_target].options.paths = paths;
+
+        sub_tasks.push( task_name+":"+jit_target );
+
+        grunt.config.set(task_name, task_options);
+    }
+    function queue_css_img_merge_dir( sub_tasks, current_target, meta_dir, in_dir, out_dir ){
+
+        var merge_options = grunt.config("phantomizer-gm-merge") || {};
+        var map = merge_options.options.in_files;
+
+        var jit_target = "jit"+sub_tasks.length;
+        var task_name = "phantomizer-dir-css-imgmerge";
+        var task_options = grunt.config(task_name) || {};
+
+        task_options = clone_subtasks_options(task_options, jit_target, current_target);
+        task_options[jit_target].options.paths = in_dir;
+        task_options[jit_target].options.out_dir = out_dir;
+        task_options[jit_target].options.meta_dir = meta_dir;
+        task_options[jit_target].options.map = map;
+
+        sub_tasks.push( task_name+":"+jit_target );
+
+        grunt.config.set(task_name, task_options);
+    }
+    function queue_gm_merge( sub_tasks, current_target, paths, out_dir ){
+
+        var jit_target = "jit"+sub_tasks.length;
+        var task_name = "phantomizer-gm-merge";
+        var task_options = grunt.config(task_name) || {};
+
+        task_options = clone_subtasks_options(task_options, jit_target, current_target);
+
+        if( !task_options[jit_target].options )
+            task_options[jit_target].options = {};
+        task_options[jit_target].options.paths = paths;
+        task_options[jit_target].options.out_dir = out_dir;
+
+        sub_tasks.push( task_name+":"+jit_target );
+
+        grunt.config.set(task_name, task_options);
+    }
+
+    function clone_subtasks_options(task_options, task_name, current_target){
+        var _ = grunt.util._;
+        if( task_options[current_target] ) task_options[task_name] = _.clone(task_options[current_target], true);
+        if( !task_options[task_name] ) task_options[task_name] = {};
+        if( !task_options[task_name].options ) task_options[task_name].options = {};
+        return task_options;
+    }
+
+
+    function find_in_paths(paths, src){
+        var Path = require("path");
+        for( var t in paths ){
+            if( grunt.file.exists(paths[t]+src) ){
+                return Path.resolve(paths[t]+src)
+            }
+        }
+        return false
+    }
+
 };
