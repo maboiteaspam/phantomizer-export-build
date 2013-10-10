@@ -144,7 +144,6 @@ module.exports = function(grunt) {
 
 
 
-
     function read_option_urls(options,then){
         var urls = [];
         if (options.urls_datasource){
