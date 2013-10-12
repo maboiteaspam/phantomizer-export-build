@@ -2,6 +2,8 @@
 
 module.exports = function(grunt) {
 
+
+    var ph_libutil = require("phantomizer-libutil");
     var fs = require("fs")
 
     var deleteFolderRecursive = function(path) {
@@ -12,13 +14,13 @@ module.exports = function(grunt) {
                     deleteFolderRecursive(curPath);
                 } else { // delete file
                     fs.unlinkSync(curPath);
+                    grunt.verbose.ok("removed "+curPath);
                 }
             });
+            grunt.verbose.ok("removed "+path);
             fs.rmdirSync(path);
         }
     };
-
-
     function copy_recusive( source, pattern, output ){
         var files = grunt.file.expand({}, [source+pattern]);
         for( var n in files ){
@@ -29,7 +31,7 @@ module.exports = function(grunt) {
                 }else{
                     var output_f = (output+"/"+f).replace("//","/")
                     grunt.file.copy(source+"/"+f, output_f)
-                    //grunt.log.ok("copying "+source+"/"+f+" "+output_f);
+                    grunt.verbose.ok("copying "+source+"/"+f+" "+output_f);
                 }
             }
         }
@@ -38,7 +40,6 @@ module.exports = function(grunt) {
     grunt.registerTask("phantomizer-build", "", function () {
 
         var options = this.options();
-        var grunt_config = grunt.config.get();
 
         var build_target = options.build_target;
         var clean_dir = options.clean_dir;
@@ -48,12 +49,18 @@ module.exports = function(grunt) {
             grunt.file.mkdir(clean_dir[n])
         }
 
-        var tasks = [];
-        read_option_urls(options,function(urls){
-            if( urls.length ==0 && grunt_config.routing ){
+        var done = this.async();
+
+        var config = grunt.config.get();
+        var router_factory = ph_libutil.router;
+        var router = new router_factory(config.routing)
+        router.load(function(){
+            var urls = router.collect_urls();
+            var tasks = [];
+            if( urls.length ==0 && config.routing ){
                 urls = [];
-                for( var n in grunt_config.routing ){
-                    var route = grunt_config.routing[n];
+                for( var n in config.routing ){
+                    var route = config.routing[n];
                     if( route.urls ){
                         for(var n in route.urls ){
                             urls.push(route.urls[n])
@@ -67,43 +74,53 @@ module.exports = function(grunt) {
                 tasks.push("phantomizer-html-jitbuild:"+build_target+":"+urls[n])
             }
             grunt.task.run( tasks );
+            done();
         });
     });
 
 
-
+    grunt.registerTask("export-done", "", function () {
+        console.log("Export done !");
+    });
     grunt.registerMultiTask("phantomizer-build2", "", function () {
 
         var options = this.options();
 
         var build_target = options.build_target;
+        var inject_extras = options.inject_extras;
         var clean_dir = options.clean_dir;
-        var out_path = options.out_path;
         var export_dir = options.export_dir;
+        var built_paths = options.built_paths;
         var meta_dir = options.meta_dir;
         var current_target = this.target;
 
         for( var n in clean_dir ){
-            deleteFolderRecursive(clean_dir[n])
-            grunt.file.mkdir(clean_dir[n])
+            deleteFolderRecursive(clean_dir[n]);
+            grunt.file.mkdir(clean_dir[n]);
         }
+
+        var done = this.async();
 
         var tasks = [];
 
-
-        read_option_urls(options,function(urls){
-            queue_urls_html_build(tasks, urls, build_target);
+        var config = grunt.config.get();
+        var router_factory = ph_libutil.router;
+        var router = new router_factory(config.routing);
+        router.load(function(){
+            var urls = router.collect_urls();
+            queue_urls_html_build(tasks, urls, build_target, inject_extras);
 
             tasks.push('phantomizer-export-build:'+current_target);
 
-            queue_gm_merge(tasks, current_target, [export_dir], export_dir);
-            queue_img_opt_dir(tasks, current_target, [export_dir]);
-            queue_css_img_merge_dir(tasks, current_target, meta_dir, [export_dir], export_dir);
+            queue_gm_merge(tasks, build_target, current_target, built_paths, export_dir);
+            queue_img_opt_dir(tasks, build_target, current_target, [export_dir]);
+            queue_css_img_merge_dir(tasks, build_target, current_target, meta_dir, built_paths, export_dir);
 
             tasks.push( "throttle:100" );
 
             grunt.task.run( tasks );
-        });
+            done();
+        })
     });
 
 
@@ -128,7 +145,6 @@ module.exports = function(grunt) {
             }
         }
 
-
         for( var n in rm_dir ){
             grunt.log.ok("deleting "+rm_dir[n]);
             deleteFolderRecursive(rm_dir[n]);
@@ -144,52 +160,8 @@ module.exports = function(grunt) {
 
 
 
-    function read_option_urls(options,then){
-        var urls = [];
-        if (options.urls_datasource){
-            grunt.log.ok("Reading urls from URL "+options.urls_datasource);
-            read_url(options.urls_datasource, function(status,content){
-                urls = JSON.parse(content);
-                then(urls);
-            });
-        }else if (options.urls_file){
-            var content = fs.readFileSync(options.urls_file);
-            grunt.log.ok("Reading urls from file "+options.urls_file);
-            urls = JSON.parse(content);
-            then(urls);
-        }else if( options.urls ){
-            grunt.log.ok("Reading urls inlined from options");
-            then(options.urls);
-        }else if (options.url){
-            urls = [options.url];
-            grunt.log.ok("Reading urls inlined from options");
-            then(urls);
-        }
-    }
-    function read_url(url,then){
-        var content = "";
-        http.get(url, function(res) {
-            console.log("Got response: " + res.statusCode);
-            res.setEncoding('utf8');
-            res.on('data', function (chunk) {
-                content+=chunk;
-                console.log('BODY: ' + chunk);
-            });
-            res.on('end', function() {
-                content = JSON.parse(content);
-                if( then) then(true,content);
-            });
-        }).on('error', function(e) {
-                console.log("Got error: " + e.message);
-                if( then) then(false,content);
-            });
-    }
 
-
-
-
-
-    function queue_urls_html_build( tasks, urls, build_target){
+    function queue_urls_html_build( tasks, urls, build_target, inject_extras){
         grunt.file.mkdir("tmp")
         var urls_file = "tmp/urls.json";
         grunt.file.write(urls_file, JSON.stringify(urls));
@@ -199,17 +171,18 @@ module.exports = function(grunt) {
         if(!opt[build_target].options) opt[build_target].options = {};
 
         opt[build_target].options.urls_file = urls_file;
+        opt[build_target].options.inject_extras = inject_extras;
 
         grunt.config.set("phantomizer-html-builder2", opt);
         tasks.push("phantomizer-html-builder2:"+build_target)
     }
-    function queue_img_opt_dir( sub_tasks, current_target, paths ){
+    function queue_img_opt_dir( sub_tasks, build_target, current_target, paths ){
 
-        var jit_target = "jit"+sub_tasks.length;
+        var jit_target = ""+current_target;
         var task_name = "phantomizer-dir-imgopt";
         var task_options = grunt.config(task_name) || {};
 
-        task_options = clone_subtasks_options(task_options, jit_target, current_target);
+        task_options = clone_subtasks_options(task_options, jit_target, build_target);
         if(!task_options[jit_target].options) task_options[jit_target].options = {};
         task_options[jit_target].options.paths = paths;
 
@@ -217,16 +190,16 @@ module.exports = function(grunt) {
 
         grunt.config.set(task_name, task_options);
     }
-    function queue_css_img_merge_dir( sub_tasks, current_target, meta_dir, in_dir, out_dir ){
+    function queue_css_img_merge_dir( sub_tasks, build_target, current_target, meta_dir, in_dir, out_dir ){
 
         var merge_options = grunt.config("phantomizer-gm-merge") || {};
         var map = merge_options.options.in_files;
 
-        var jit_target = "jit"+sub_tasks.length;
+        var jit_target = ""+current_target;
         var task_name = "phantomizer-dir-css-imgmerge";
         var task_options = grunt.config(task_name) || {};
 
-        task_options = clone_subtasks_options(task_options, jit_target, current_target);
+        task_options = clone_subtasks_options(task_options, jit_target, build_target);
         task_options[jit_target].options.paths = in_dir;
         task_options[jit_target].options.out_dir = out_dir;
         task_options[jit_target].options.meta_dir = meta_dir;
@@ -236,13 +209,13 @@ module.exports = function(grunt) {
 
         grunt.config.set(task_name, task_options);
     }
-    function queue_gm_merge( sub_tasks, current_target, paths, out_dir ){
+    function queue_gm_merge( sub_tasks, build_target, current_target, paths, out_dir ){
 
-        var jit_target = "jit"+sub_tasks.length;
+        var jit_target = ""+current_target;
         var task_name = "phantomizer-gm-merge";
         var task_options = grunt.config(task_name) || {};
 
-        task_options = clone_subtasks_options(task_options, jit_target, current_target);
+        task_options = clone_subtasks_options(task_options, jit_target, build_target);
 
         if( !task_options[jit_target].options )
             task_options[jit_target].options = {};
@@ -261,16 +234,4 @@ module.exports = function(grunt) {
         if( !task_options[task_name].options ) task_options[task_name].options = {};
         return task_options;
     }
-
-
-    function find_in_paths(paths, src){
-        var Path = require("path");
-        for( var t in paths ){
-            if( grunt.file.exists(paths[t]+src) ){
-                return Path.resolve(paths[t]+src)
-            }
-        }
-        return false
-    }
-
 };
