@@ -16,7 +16,6 @@
     },
     "dependencies": {
         "grunt": "0.4.x",
-        "phantomizer-html-builder": "git://github.com/maboiteaspam/phantomizer-html-builder.git",
         "phantomizer-libutil": "git://github.com/maboiteaspam/phantomizer-libutil.git"
     },
     "devDependencies": {}
