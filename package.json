@@ -16,8 +16,8 @@
     },
     "dependencies": {
         "grunt": "0.4.x",
-        "phantomizer-html-builder": "maboiteaspam/phantomizer-html-builder",
-        "phantomizer-libutil": "maboiteaspam/phantomizer-libutil"
+        "phantomizer-html-builder": "maboiteaspam/maboiteaspam/maboiteaspam/phantomizer-html-builder#614aeae",
+        "phantomizer-libutil": "maboiteaspam/maboiteaspam/maboiteaspam/phantomizer-libutil#010b357"
     },
     "devDependencies": {}
 }
