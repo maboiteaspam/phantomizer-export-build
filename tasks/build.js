@@ -4,7 +4,8 @@ module.exports = function(grunt) {
 
 
     var ph_libutil = require("phantomizer-libutil");
-    var fs = require("fs")
+    var fs = require("fs");
+    var path = require("path");
 
     var deleteFolderRecursive = function(path) {
         if( fs.existsSync(path) ) {
@@ -39,10 +40,13 @@ module.exports = function(grunt) {
 
     grunt.registerTask("phantomizer-build", "", function () {
 
-        var options = this.options();
+        var options = this.options({
+            clean_dir:[],
+            build_target:""
+        });
 
-        var build_target = options.build_target;
-        var clean_dir = options.clean_dir;
+        var build_target    = options.build_target;
+        var clean_dir       = options.clean_dir;
 
         for( var n in clean_dir ){
             deleteFolderRecursive(clean_dir[n])
@@ -84,15 +88,17 @@ module.exports = function(grunt) {
     });
     grunt.registerMultiTask("phantomizer-build2", "", function () {
 
-        var options = this.options();
+        var options = this.options({
+            clean_dir:[],
+            build_target:"",
+            urls_file:"tmp/urls.json",
+            inject_extras:false
+        });
 
-        var build_target = options.build_target;
-        var inject_extras = options.inject_extras;
-        var clean_dir = options.clean_dir;
-        var export_dir = options.export_dir;
-        var built_paths = options.built_paths;
-        var meta_dir = options.meta_dir;
-        var current_target = this.target;
+        var build_target    = options.build_target;
+        var urls_file       = options.urls_file;
+        var inject_extras   = options.inject_extras;
+        var clean_dir       = options.clean_dir;
 
         for( var n in clean_dir ){
             deleteFolderRecursive(clean_dir[n]);
@@ -108,11 +114,7 @@ module.exports = function(grunt) {
         var router = new router_factory(config.routing);
         router.load(function(){
             var urls = router.collect_urls();
-            queue_urls_html_build(tasks, urls, build_target, inject_extras);
-
-            tasks.push('phantomizer-export-build:'+current_target);
-
-            tasks.push( "throttle:100" );
+            queue_urls_html_build(tasks, urls, urls_file, build_target, inject_extras);
 
             grunt.task.run( tasks );
             done();
@@ -124,13 +126,19 @@ module.exports = function(grunt) {
     grunt.registerMultiTask("phantomizer-export-build", "", function () {
         var done = this.async();
 
-        var options = this.options();
+        var options = this.options({
+            paths:[],
+            copy_patterns:[],
+            export_dir:"",
+            rm_dir:[],
+            rm_files:[]
+        });
 
-        var paths = options.paths;
-        var copy_patterns = options.copy_patterns;
-        var export_dir = options.export_dir;
-        var rm_dir = options.rm_dir;
-        var rm_files = options.rm_files;
+        var paths           = options.paths;
+        var copy_patterns   = options.copy_patterns;
+        var export_dir      = options.export_dir;
+        var rm_dir          = options.rm_dir;
+        var rm_files        = options.rm_files;
 
         grunt.log.ok("exporting to "+export_dir );
         grunt.file.mkdir( export_dir );
@@ -157,9 +165,8 @@ module.exports = function(grunt) {
 
 
 
-    function queue_urls_html_build( tasks, urls, build_target, inject_extras){
-        grunt.file.mkdir("tmp")
-        var urls_file = "tmp/urls.json";
+    function queue_urls_html_build( tasks, urls, urls_file, build_target, inject_extras){
+        grunt.file.mkdir( path.dirname(urls_file) );
         grunt.file.write(urls_file, JSON.stringify(urls));
 
         var opt = grunt.config.get("phantomizer-html-builder2");
