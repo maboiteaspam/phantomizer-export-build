@@ -194,7 +194,7 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         
       
         
-        <p>ensuer directories are clean</p>
+        <p>ensure directories are clean</p>
 
         
           <div class='highlight'><pre>        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> clean_dir ){
@@ -230,14 +230,14 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         
       
         
-        <p>create the temp directory</p>
+        <p>create the temp directory to save collceted urls</p>
 
         
           <div class='highlight'><pre>            grunt.file.mkdir( path.dirname(urls_file) );</pre></div>
         
       
         
-        <p>write urls file to a temp file</p>
+        <p>write collected urls to a temp file</p>
 
         
           <div class='highlight'><pre>            grunt.file.write(urls_file, <span class="hljs-built_in">JSON</span>.stringify(urls));</pre></div>
@@ -278,20 +278,45 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         
       
         
-        <p>default task options
-paths an Array(directory_path)
-copy_patterns an Array(pattern) : <em>*/</em>.html
-export_dir the target directory of the delivery
-rm_dir the directories to clean in the export_dir
-rm_file the files to clean in the export_dir</p>
+        <p>default task options</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({
-            paths:[],
-            copy_patterns:[],
-            export_dir:<span class="hljs-string">""</span>,
-            rm_dir:[],
-            rm_files:[]
+          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({</pre></div>
+        
+      
+        
+        <p>paths an Array(directory_path)</p>
+
+        
+          <div class='highlight'><pre>            paths:[],</pre></div>
+        
+      
+        
+        <p>copy_patterns an Array(pattern) : <em>*/</em>.html</p>
+
+        
+          <div class='highlight'><pre>            copy_patterns:[],</pre></div>
+        
+      
+        
+        <p>export_dir the target directory of the delivery</p>
+
+        
+          <div class='highlight'><pre>            export_dir:<span class="hljs-string">""</span>,</pre></div>
+        
+      
+        
+        <p>rm_dir the directories to clean in the export_dir</p>
+
+        
+          <div class='highlight'><pre>            rm_dir:[],</pre></div>
+        
+      
+        
+        <p>rm_file the files to clean in the export_dir</p>
+
+        
+          <div class='highlight'><pre>            rm_files:[]
         });
 
         <span class="hljs-keyword">var</span> paths           = options.paths;
@@ -335,10 +360,14 @@ rm_file the files to clean in the export_dir</p>
                 fs.unlinkSync(rm_files[n]);
             }
         }
-    });
+    });</pre></div>
+        
+      
+        
+        <p>utilities</p>
 
-
-    <span class="hljs-comment">/**
+        
+          <div class='highlight'><pre>    <span class="hljs-comment">/**
      * Search for corresponding
      * pattern file in source
      * and copy those files to output
