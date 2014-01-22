@@ -36,14 +36,24 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         
       
         
-        <p>default options
-clean_dir is an array of directory path to clean before the build occurs
-build_target define the optimization level to apply to the builded page</p>
+        <p>default options</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({
-            clean_dir:[],
-            build_target:<span class="hljs-string">""</span>
+          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({</pre></div>
+        
+      
+        
+        <p>clean_dir is an array of directory path to clean before the build occurs</p>
+
+        
+          <div class='highlight'><pre>            clean_dir:[],</pre></div>
+        
+      
+        
+        <p>build_target define the optimization level to apply to the builded page</p>
+
+        
+          <div class='highlight'><pre>            build_target:<span class="hljs-string">""</span>
         });
 
         <span class="hljs-keyword">var</span> build_target    = options.build_target;
@@ -143,17 +153,38 @@ build_target define the optimization level to apply to the builded page</p>
         
       
         
-        <p>default task options
-the directories to clean before the build
-the temporary file to use for urls recording
-inject extras loader into the page</p>
+        <p>default task options</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({
-            clean_dir:[],
-            build_target:<span class="hljs-string">""</span>,
-            urls_file:<span class="hljs-string">"tmp/urls.json"</span>,
-            inject_extras:<span class="hljs-literal">false</span>
+          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({</pre></div>
+        
+      
+        
+        <p>the directories to clean before the build</p>
+
+        
+          <div class='highlight'><pre>            clean_dir:[],</pre></div>
+        
+      
+        
+        <p>the grunt target to use for page optimization level</p>
+
+        
+          <div class='highlight'><pre>            build_target:<span class="hljs-string">""</span>,</pre></div>
+        
+      
+        
+        <p>the temporary file to use for urls recording</p>
+
+        
+          <div class='highlight'><pre>            urls_file:<span class="hljs-string">"tmp/urls.json"</span>,</pre></div>
+        
+      
+        
+        <p>inject extras loader into the page</p>
+
+        
+          <div class='highlight'><pre>            inject_extras:<span class="hljs-literal">false</span>
         });
 
         <span class="hljs-keyword">var</span> build_target    = options.build_target;
