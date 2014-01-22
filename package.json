@@ -1,0 +1,22 @@
+{
+    "name": "phantomizer-export-build",
+    "version": "0.1.15",
+    "private": true,
+    "description": "Export built application for phantomizer",
+    "keywords": "",
+    "bugs": {
+        "url": "http://github.com/maboiteaspam/phantomizer-export-build/issues",
+        "email": "none@host.com"
+    },
+    "license": "mit",
+    "directories.lib": "lib/",
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/maboiteaspam/phantomizer-export-build.git"
+    },
+    "dependencies": {
+        "grunt": "0.4.x",
+        "phantomizer-libutil": "git://github.com/maboiteaspam/phantomizer-libutil.git"
+    },
+    "devDependencies": {}
+}
