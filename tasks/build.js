@@ -10,10 +10,10 @@ module.exports = function(grunt) {
     grunt.registerTask("phantomizer-build", "", function () {
 
         // default options
-        // clean_dir is an array of directory path to clean before the build occurs
-        // build_target define the optimization level to apply to the builded page
         var options = this.options({
+            // clean_dir is an array of directory path to clean before the build occurs
             clean_dir:[],
+            // build_target define the optimization level to apply to the builded page
             build_target:""
         });
 
@@ -73,13 +73,14 @@ module.exports = function(grunt) {
     grunt.registerMultiTask("phantomizer-build2", "", function () {
 
         // default task options
-        // the directories to clean before the build
-        // the temporary file to use for urls recording
-        // inject extras loader into the page
         var options = this.options({
+            // the directories to clean before the build
             clean_dir:[],
+            // the grunt target to use for page optimization level
             build_target:"",
+            // the temporary file to use for urls recording
             urls_file:"tmp/urls.json",
+            // inject extras loader into the page
             inject_extras:false
         });
 
@@ -88,7 +89,7 @@ module.exports = function(grunt) {
         var inject_extras   = options.inject_extras;
         var clean_dir       = options.clean_dir;
 
-        // ensuer directories are clean
+        // ensure directories are clean
         for( var n in clean_dir ){
             grunt.file.delete(clean_dir[n], {force: true})
             grunt.file.mkdir(clean_dir[n]);
@@ -107,9 +108,9 @@ module.exports = function(grunt) {
 
             var urls = router.collect_urls();
 
-            // create the temp directory
+            // create the temp directory to save collceted urls
             grunt.file.mkdir( path.dirname(urls_file) );
-            // write urls file to a temp file
+            // write collected urls to a temp file
             grunt.file.write(urls_file, JSON.stringify(urls));
 
             // create a new grunt task
@@ -134,16 +135,16 @@ module.exports = function(grunt) {
     grunt.registerMultiTask("phantomizer-export-build", "", function () {
 
         // default task options
-        // paths an Array(directory_path)
-        // copy_patterns an Array(pattern) : **/*.html
-        // export_dir the target directory of the delivery
-        // rm_dir the directories to clean in the export_dir
-        // rm_file the files to clean in the export_dir
         var options = this.options({
+            // paths an Array(directory_path)
             paths:[],
+            // copy_patterns an Array(pattern) : **/*.html
             copy_patterns:[],
+            // export_dir the target directory of the delivery
             export_dir:"",
+            // rm_dir the directories to clean in the export_dir
             rm_dir:[],
+            // rm_file the files to clean in the export_dir
             rm_files:[]
         });
 
@@ -178,7 +179,7 @@ module.exports = function(grunt) {
         }
     });
 
-
+// utilities
     /**
      * Search for corresponding
      * pattern file in source
