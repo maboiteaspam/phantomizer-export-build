@@ -7,7 +7,8 @@ module.exports = function(grunt) {
     var fs = require("fs");
     var path = require("path");
 
-    // <h2>register a task to build an entire project with best performance</h2>
+    // <h3>Build an url</h3>
+    // build provided url against a webserver
     grunt.registerTask("phantomizer-build", "", function () {
 
         // default options
@@ -52,7 +53,8 @@ module.exports = function(grunt) {
     });
 
 
-    // <h2>register a task to build an entire project with best performance</h2>
+    // <h3>Builds a phantomizer project</h3>
+    // build an entire project with best performance
     grunt.registerMultiTask("phantomizer-project-builder", "", function () {
 
         // default task options
@@ -119,7 +121,8 @@ module.exports = function(grunt) {
 
 
 
-    // <h2>register a task to build an entire project with best performance</h2>
+    // <h3>Export a phantomizer project</h3>
+    // Once a phantomizer project is built, this task is able to export it
     grunt.registerMultiTask("phantomizer-export-build", "", function () {
 
         // default task options
@@ -160,14 +163,12 @@ module.exports = function(grunt) {
             grunt.file.delete(rm_dir[n], {force: true})
         }
         for( var n in rm_files ){
-            if( fs.existsSync(rm_files[n]) ){
-                grunt.log.ok("Deleting "+rm_files[n]);
-                fs.unlinkSync(rm_files[n]);
-            }
+            grunt.log.ok("Deleting "+rm_files[n]);
+            grunt.file.delete(rm_files[n])
         }
     });
 
-// utilities
+// helper function
     /**
      * Search for corresponding
      * pattern file in source
