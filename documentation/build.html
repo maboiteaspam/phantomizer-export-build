@@ -30,9 +30,15 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
 
     <span class="hljs-keyword">var</span> ph_libutil = <span class="hljs-built_in">require</span>(<span class="hljs-string">"phantomizer-libutil"</span>);
     <span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">"fs"</span>);
-    <span class="hljs-keyword">var</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);
+    <span class="hljs-keyword">var</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);</pre></div>
+        
+      
+        
+        <p><h3>Build an url</h3>
+build provided url against a webserver</p>
 
-    grunt.registerTask(<span class="hljs-string">"phantomizer-build"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
+        
+          <div class='highlight'><pre>    grunt.registerTask(<span class="hljs-string">"phantomizer-build"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
         
       
         
@@ -99,28 +105,7 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         
           <div class='highlight'><pre>        router.load(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
             <span class="hljs-keyword">var</span> urls = router.collect_urls();
-            <span class="hljs-keyword">var</span> tasks = [];
-            <span class="hljs-comment">/*
-</span></pre></div>
-        
-      
-        
-        
-        
-          <div class='highlight'><pre>             if( urls.length ==0 &amp;&amp; config.routing ){
-             urls = [];
-             for( var n in config.routing ){
-             var route = config.routing[n];
-             if( route.urls ){
-             for(var n in route.urls ){
-             urls.push(route.urls[n])
-             }
-             }else{
-             urls.push(route.template)
-             }
-             }
-             }
-             */</pre></div>
+            <span class="hljs-keyword">var</span> tasks = [];</pre></div>
         
       
         
@@ -129,8 +114,14 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         
           <div class='highlight'><pre>            <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> urls ){
                 tasks.push(<span class="hljs-string">"phantomizer-html-jitbuild:"</span>+build_target+<span class="hljs-string">":"</span>+urls[n])
-            }
-            grunt.task.run( tasks );</pre></div>
+            }</pre></div>
+        
+      
+        
+        <p>invoke the by-url build task</p>
+
+        
+          <div class='highlight'><pre>            grunt.task.run( tasks );</pre></div>
         
       
         
@@ -143,13 +134,11 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         
       
         
-        <p>register a task to print end of the process</p>
+        <p><h3>Builds a phantomizer project</h3>
+build an entire project with best performance</p>
 
         
-          <div class='highlight'><pre>    grunt.registerTask(<span class="hljs-string">"export-done"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span>
-        console.log(<span class="hljs-string">"Export done !"</span>);
-    });
-    grunt.registerMultiTask(<span class="hljs-string">"phantomizer-build2"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
+          <div class='highlight'><pre>    grunt.registerMultiTask(<span class="hljs-string">"phantomizer-project-builder"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
         
       
         
@@ -212,7 +201,8 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         
       
         
-        <p>initialize the router given the grunt config.routing key</p>
+        <p>initialize the router given the grunt config.routing key
+router provides the catalog of urls to build</p>
 
         
           <div class='highlight'><pre>        <span class="hljs-keyword">var</span> config = grunt.config.get();
@@ -224,9 +214,14 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         <p>load urls eventually from a remote service</p>
 
         
-          <div class='highlight'><pre>        router.load(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+          <div class='highlight'><pre>        router.load(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span></pre></div>
+        
+      
+        
+        <p>fetch urls to build</p>
 
-            <span class="hljs-keyword">var</span> urls = router.collect_urls();</pre></div>
+        
+          <div class='highlight'><pre>            <span class="hljs-keyword">var</span> urls = router.collect_urls();</pre></div>
         
       
         
@@ -249,9 +244,14 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         
           <div class='highlight'><pre>            <span class="hljs-keyword">var</span> opt = grunt.config.get(<span class="hljs-string">"phantomizer-html-builder2"</span>);
             <span class="hljs-keyword">if</span>(!opt[build_target]) opt[build_target] = {};
-            <span class="hljs-keyword">if</span>(!opt[build_target].options) opt[build_target].options = {};
+            <span class="hljs-keyword">if</span>(!opt[build_target].options) opt[build_target].options = {};</pre></div>
+        
+      
+        
+        <p>apply for the current options</p>
 
-            opt[build_target].options.urls_file = urls_file;
+        
+          <div class='highlight'><pre>            opt[build_target].options.urls_file = urls_file;
             opt[build_target].options.inject_extras = inject_extras;</pre></div>
         
       
@@ -259,22 +259,31 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         <p>update grunt config instance</p>
 
         
-          <div class='highlight'><pre>            grunt.config.set(<span class="hljs-string">"phantomizer-html-builder2"</span>, opt);
-
-            grunt.task.run( [<span class="hljs-string">"phantomizer-html-builder2:"</span>+build_target] );</pre></div>
+          <div class='highlight'><pre>            grunt.config.set(<span class="hljs-string">"phantomizer-html-builder2"</span>, opt);</pre></div>
         
       
         
-        <p>release the task to let the new tasks execute now</p>
+        <p>invode next task to run</p>
+
+        
+          <div class='highlight'><pre>            grunt.task.run( [<span class="hljs-string">"phantomizer-html-builder2:"</span>+build_target] );</pre></div>
+        
+      
+        
+        <p>release the task now to let the new tasks execute now</p>
 
         
           <div class='highlight'><pre>            done();
         })
-    });
+    });</pre></div>
+        
+      
+        
+        <p><h3>Export a phantomizer project</h3>
+Once a phantomizer project is built, this task is able to export it</p>
 
-
-
-    grunt.registerMultiTask(<span class="hljs-string">"phantomizer-export-build"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
+        
+          <div class='highlight'><pre>    grunt.registerMultiTask(<span class="hljs-string">"phantomizer-export-build"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
         
       
         
@@ -355,16 +364,14 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
             grunt.file.delete(rm_dir[n], {force: <span class="hljs-literal">true</span>})
         }
         <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> rm_files ){
-            <span class="hljs-keyword">if</span>( fs.existsSync(rm_files[n]) ){
-                grunt.log.ok(<span class="hljs-string">"Deleting "</span>+rm_files[n]);
-                fs.unlinkSync(rm_files[n]);
-            }
+            grunt.log.ok(<span class="hljs-string">"Deleting "</span>+rm_files[n]);
+            grunt.file.delete(rm_files[n])
         }
     });</pre></div>
         
       
         
-        <p>utilities</p>
+        <p>helper function</p>
 
         
           <div class='highlight'><pre>    <span class="hljs-comment">/**
