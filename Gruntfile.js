@@ -30,6 +30,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-gh-pages');
     grunt.registerTask('cleanup-grunt-temp', [],function(){
         wrench.rmdirSyncRecursive(__dirname + '/.grunt', !true);
+        wrench.rmdirSyncRecursive(__dirname + '/documentation', !true);
     });
 
     // juts run this command to generate docco doc and push on github
