@@ -7,6 +7,7 @@ module.exports = function(grunt) {
     var fs = require("fs");
     var path = require("path");
 
+    // <h2>register a task to build an entire project with best performance</h2>
     grunt.registerTask("phantomizer-build", "", function () {
 
         // default options
@@ -39,26 +40,11 @@ module.exports = function(grunt) {
         router.load(function(){
             var urls = router.collect_urls();
             var tasks = [];
-            /*
-             //
-             if( urls.length ==0 && config.routing ){
-             urls = [];
-             for( var n in config.routing ){
-             var route = config.routing[n];
-             if( route.urls ){
-             for(var n in route.urls ){
-             urls.push(route.urls[n])
-             }
-             }else{
-             urls.push(route.template)
-             }
-             }
-             }
-             */
             // foreach url push a new grunt task to actually build the url
             for( var n in urls ){
                 tasks.push("phantomizer-html-jitbuild:"+build_target+":"+urls[n])
             }
+            // invoke the by-url build task
             grunt.task.run( tasks );
             // consume the async handler to let new tasks to run
             done();
@@ -66,11 +52,8 @@ module.exports = function(grunt) {
     });
 
 
-    // register a task to print end of the process
-    grunt.registerTask("export-done", "", function () {
-        console.log("Export done !");
-    });
-    grunt.registerMultiTask("phantomizer-build2", "", function () {
+    // <h2>register a task to build an entire project with best performance</h2>
+    grunt.registerMultiTask("phantomizer-project-builder", "", function () {
 
         // default task options
         var options = this.options({
@@ -100,12 +83,14 @@ module.exports = function(grunt) {
         var done = this.async();
 
         // initialize the router given the grunt config.routing key
+        // router provides the catalog of urls to build
         var config = grunt.config.get();
         var router_factory = ph_libutil.router;
         var router = new router_factory(config.routing);
         // load urls eventually from a remote service
         router.load(function(){
 
+            // fetch urls to build
             var urls = router.collect_urls();
 
             // create the temp directory to save collceted urls
@@ -118,20 +103,23 @@ module.exports = function(grunt) {
             if(!opt[build_target]) opt[build_target] = {};
             if(!opt[build_target].options) opt[build_target].options = {};
 
+            // apply for the current options
             opt[build_target].options.urls_file = urls_file;
             opt[build_target].options.inject_extras = inject_extras;
 
             // update grunt config instance
             grunt.config.set("phantomizer-html-builder2", opt);
 
+            // invode next task to run
             grunt.task.run( ["phantomizer-html-builder2:"+build_target] );
-            // release the task to let the new tasks execute now
+            // release the task now to let the new tasks execute now
             done();
         })
     });
 
 
 
+    // <h2>register a task to build an entire project with best performance</h2>
     grunt.registerMultiTask("phantomizer-export-build", "", function () {
 
         // default task options
