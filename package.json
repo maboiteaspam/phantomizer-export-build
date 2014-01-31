@@ -22,6 +22,7 @@
         "docco": "jashkenas/docco",
         "grunt-docco": "DavidSouther/grunt-docco",
         "grunt-gh-pages": "~0.9.0",
+        "grunt-release": "geddski/grunt-release",
         "wrench": "~1.5.6"
     }
 }
