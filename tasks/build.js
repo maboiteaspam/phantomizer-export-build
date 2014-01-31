@@ -79,7 +79,7 @@ module.exports = function(grunt) {
         }
 
         // create a new grunt task
-        var opt = grunt.config.get("phantomizer-html-builder2");
+        var opt = grunt.config.get("phantomizer-html-project-builder");
         if(!opt[build_target]) opt[build_target] = {};
         if(!opt[build_target].options) opt[build_target].options = {};
 
@@ -87,10 +87,10 @@ module.exports = function(grunt) {
         opt[build_target].options.inject_extras = inject_extras;
 
         // update grunt config instance
-        grunt.config.set("phantomizer-html-builder2", opt);
+        grunt.config.set("phantomizer-html-project-builder", opt);
 
         // invode next task to run
-        grunt.task.run( ["phantomizer-html-builder2:"+build_target] );
+        grunt.task.run( ["phantomizer-html-project-builder:"+build_target] );
         // release the task now to let the new tasks execute now
     });
 
