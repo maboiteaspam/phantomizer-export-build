@@ -163,13 +163,6 @@ build an entire project with best performance</p>
         
       
         
-        <p>the temporary file to use for urls recording</p>
-
-        
-          <div class='highlight'><pre>            urls_file:<span class="hljs-string">"tmp/urls.json"</span>,</pre></div>
-        
-      
-        
         <p>inject extras loader into the page</p>
 
         
@@ -177,7 +170,6 @@ build an entire project with best performance</p>
         });
 
         <span class="hljs-keyword">var</span> build_target    = options.build_target;
-        <span class="hljs-keyword">var</span> urls_file       = options.urls_file;
         <span class="hljs-keyword">var</span> inject_extras   = options.inject_extras;
         <span class="hljs-keyword">var</span> clean_dir       = options.clean_dir;</pre></div>
         
@@ -194,88 +186,40 @@ build an entire project with best performance</p>
         
       
         
-        <p>asynchronous task</p>
-
-        
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> done = <span class="hljs-keyword">this</span>.async();</pre></div>
-        
-      
-        
-        <p>initialize the router given the grunt config.routing key
-router provides the catalog of urls to build</p>
-
-        
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> config = grunt.config.get();
-        <span class="hljs-keyword">var</span> router_factory = ph_libutil.router;
-        <span class="hljs-keyword">var</span> router = <span class="hljs-keyword">new</span> router_factory(config.routing);</pre></div>
-        
-      
-        
-        <p>load urls eventually from a remote service</p>
-
-        
-          <div class='highlight'><pre>        router.load(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span></pre></div>
-        
-      
-        
-        <p>fetch urls to build</p>
-
-        
-          <div class='highlight'><pre>            <span class="hljs-keyword">var</span> urls = router.collect_urls();</pre></div>
-        
-      
-        
-        <p>create the temp directory to save collceted urls</p>
-
-        
-          <div class='highlight'><pre>            grunt.file.mkdir( path.dirname(urls_file) );</pre></div>
-        
-      
-        
-        <p>write collected urls to a temp file</p>
-
-        
-          <div class='highlight'><pre>            grunt.file.write(urls_file, <span class="hljs-built_in">JSON</span>.stringify(urls));</pre></div>
-        
-      
-        
         <p>create a new grunt task</p>
 
         
-          <div class='highlight'><pre>            <span class="hljs-keyword">var</span> opt = grunt.config.get(<span class="hljs-string">"phantomizer-html-builder2"</span>);
-            <span class="hljs-keyword">if</span>(!opt[build_target]) opt[build_target] = {};
-            <span class="hljs-keyword">if</span>(!opt[build_target].options) opt[build_target].options = {};</pre></div>
+          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> opt = grunt.config.get(<span class="hljs-string">"phantomizer-html-project-builder"</span>);
+        <span class="hljs-keyword">if</span>(!opt[build_target]) opt[build_target] = {};
+        <span class="hljs-keyword">if</span>(!opt[build_target].options) opt[build_target].options = {};</pre></div>
         
       
         
         <p>apply for the current options</p>
 
         
-          <div class='highlight'><pre>            opt[build_target].options.urls_file = urls_file;
-            opt[build_target].options.inject_extras = inject_extras;</pre></div>
+          <div class='highlight'><pre>        opt[build_target].options.inject_extras = inject_extras;</pre></div>
         
       
         
         <p>update grunt config instance</p>
 
         
-          <div class='highlight'><pre>            grunt.config.set(<span class="hljs-string">"phantomizer-html-builder2"</span>, opt);</pre></div>
+          <div class='highlight'><pre>        grunt.config.set(<span class="hljs-string">"phantomizer-html-project-builder"</span>, opt);</pre></div>
         
       
         
         <p>invode next task to run</p>
 
         
-          <div class='highlight'><pre>            grunt.task.run( [<span class="hljs-string">"phantomizer-html-builder2:"</span>+build_target] );</pre></div>
+          <div class='highlight'><pre>        grunt.task.run( [<span class="hljs-string">"phantomizer-html-project-builder:"</span>+build_target] );</pre></div>
         
       
         
         <p>release the task now to let the new tasks execute now</p>
 
         
-          <div class='highlight'><pre>            done();
-        })
-    });</pre></div>
+          <div class='highlight'><pre>    });</pre></div>
         
       
         
