@@ -24,6 +24,21 @@ module.exports = function(grunt) {
                 add: true
             },
             src: ['documentation/**']
+        },
+        release: {
+            options: {
+                bump: true,
+                add: false,
+                commit: false,
+                npm: false,
+                npmtag: true,
+                tagName: '<%= version %>',
+                github: {
+                    repo: 'maboiteaspam/phantomizer-export-build', //put your user/repo here
+                    usernameVar: 'GITHUB_USERNAME', //ENVIRONMENT VARIABLE that contains Github username
+                    passwordVar: 'GITHUB_PASSWORD' //ENVIRONMENT VARIABLE that contains Github password
+                }
+            }
         }
     });
     grunt.loadNpmTasks('grunt-docco');
@@ -36,5 +51,14 @@ module.exports = function(grunt) {
     // juts run this command to generate docco doc and push on github
     // grunt
     grunt.registerTask('default', ['docco','gh-pages', 'cleanup-grunt-temp']);
+
+    // to release the project in a new version
+    // use one of those commands
+    // grunt --no-write -v release # test only
+    // grunt release:patch
+    // grunt release:minor
+    // grunt release:major
+    // grunt release:prerelease
+
 
 };
