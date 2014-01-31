@@ -63,14 +63,11 @@ module.exports = function(grunt) {
             clean_dir:[],
             // the grunt target to use for page optimization level
             build_target:"",
-            // the temporary file to use for urls recording
-            urls_file:"tmp/urls.json",
             // inject extras loader into the page
             inject_extras:false
         });
 
         var build_target    = options.build_target;
-        var urls_file       = options.urls_file;
         var inject_extras   = options.inject_extras;
         var clean_dir       = options.clean_dir;
 
@@ -81,42 +78,20 @@ module.exports = function(grunt) {
             grunt.verbose.write("Directory cleaned "+clean_dir[n])
         }
 
-        // asynchronous task
-        var done = this.async();
+        // create a new grunt task
+        var opt = grunt.config.get("phantomizer-html-builder2");
+        if(!opt[build_target]) opt[build_target] = {};
+        if(!opt[build_target].options) opt[build_target].options = {};
 
-        // initialize the router given the grunt config.routing key
-        // router provides the catalog of urls to build
-        var config = grunt.config.get();
-        var router_factory = ph_libutil.router;
-        var router = new router_factory(config.routing);
-        // load urls eventually from a remote service
-        router.load(function(){
+        // apply for the current options
+        opt[build_target].options.inject_extras = inject_extras;
 
-            // fetch urls to build
-            var urls = router.collect_urls();
+        // update grunt config instance
+        grunt.config.set("phantomizer-html-builder2", opt);
 
-            // create the temp directory to save collceted urls
-            grunt.file.mkdir( path.dirname(urls_file) );
-            // write collected urls to a temp file
-            grunt.file.write(urls_file, JSON.stringify(urls));
-
-            // create a new grunt task
-            var opt = grunt.config.get("phantomizer-html-builder2");
-            if(!opt[build_target]) opt[build_target] = {};
-            if(!opt[build_target].options) opt[build_target].options = {};
-
-            // apply for the current options
-            opt[build_target].options.urls_file = urls_file;
-            opt[build_target].options.inject_extras = inject_extras;
-
-            // update grunt config instance
-            grunt.config.set("phantomizer-html-builder2", opt);
-
-            // invode next task to run
-            grunt.task.run( ["phantomizer-html-builder2:"+build_target] );
-            // release the task now to let the new tasks execute now
-            done();
-        })
+        // invode next task to run
+        grunt.task.run( ["phantomizer-html-builder2:"+build_target] );
+        // release the task now to let the new tasks execute now
     });
 
 
