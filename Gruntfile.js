@@ -43,6 +43,7 @@ module.exports = function(grunt) {
     });
     grunt.loadNpmTasks('grunt-docco');
     grunt.loadNpmTasks('grunt-gh-pages');
+    grunt.loadNpmTasks('grunt-release');
     grunt.registerTask('cleanup-grunt-temp', [],function(){
         wrench.rmdirSyncRecursive(__dirname + '/.grunt', !true);
         wrench.rmdirSyncRecursive(__dirname + '/documentation', !true);
