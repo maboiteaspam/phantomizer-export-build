@@ -7,7 +7,8 @@ module.exports = function(grunt) {
     var fs = require("fs");
     var path = require("path");
 
-    // <h3>Build an url</h3>
+    // Build an url
+    // ----------
     // build provided url against a webserver
     grunt.registerTask("phantomizer-build", "", function () {
 
@@ -53,9 +54,12 @@ module.exports = function(grunt) {
     });
 
 
-    // <h3>Builds a phantomizer project</h3>
-    // build an entire project with best performance
-    grunt.registerMultiTask("phantomizer-project-builder", "", function () {
+    // Builds a phantomizer project
+    // ----------
+    // builds an entire project with best performance
+    // this task specifically helps to drive the build by environment
+    grunt.registerMultiTask("phantomizer-project-builder",
+        "Builds an entire project with best performance", function () {
 
         // default task options
         var options = this.options({
@@ -64,39 +68,118 @@ module.exports = function(grunt) {
             // the grunt target to use for page optimization level
             build_target:"",
             // inject extras loader into the page
-            inject_extras:false
+            inject_extras:false,
+            //
+            build_assets:false,
+            // appcache support
+            html_manifest:false,
+            // sitemap support
+            sitemap:false,
+            web_domain:"",
+            // minify html
+            htmlcompressor:false,
+            export_dir:""
         });
 
-        var build_target    = options.build_target;
-        var inject_extras   = options.inject_extras;
-        var clean_dir       = options.clean_dir;
+        var tgt_env = this.target;
+
 
         // ensure directories are clean
+        var clean_dir = options.clean_dir;
         for( var n in clean_dir ){
             grunt.file.delete(clean_dir[n], {force: true})
             grunt.file.mkdir(clean_dir[n]);
             grunt.verbose.write("Directory cleaned "+clean_dir[n])
         }
 
-        // create a new grunt task
+
+        // Adjust phantomizer-html-project-builder options
+        var build_target = options.build_target;
         var opt = grunt.config.get("phantomizer-html-project-builder");
         if(!opt[build_target]) opt[build_target] = {};
         if(!opt[build_target].options) opt[build_target].options = {};
 
         // apply for the current options
-        opt[build_target].options.inject_extras = inject_extras;
+        opt[build_target].options.inject_extras = options.inject_extras;
+        opt[build_target].options.build_assets = options.build_assets;
 
         // update grunt config instance
         grunt.config.set("phantomizer-html-project-builder", opt);
 
-        // invode next task to run
-        grunt.task.run( ["phantomizer-html-project-builder:"+build_target] );
-        // release the task now to let the new tasks execute now
+
+        // Adjust phantomizer-export-build options
+        opt = grunt.config.get("phantomizer-export-build");
+        if(!opt[tgt_env]) opt[tgt_env] = {};
+        if(!opt[tgt_env].options) opt[tgt_env].options = {};
+
+        // apply for the current options
+        opt[tgt_env].options.export_dir = options.export_dir;
+        opt[tgt_env].options.rm_files = options.rm_files;
+        opt[tgt_env].options.rm_dir = options.rm_dir;
+
+        // update grunt config instance
+        grunt.config.set("phantomizer-export-build", opt);
+
+
+        var tasks = [
+            "phantomizer-html-project-builder:"+build_target,
+            "phantomizer-export-build:"+tgt_env
+        ];
+
+        if( options.htmlcompressor == true ){
+            // Adjust phantomizer-dir-htmlcompressor options
+            opt = grunt.config.get("phantomizer-dir-htmlcompressor");
+            if(!opt[build_target]) opt[build_target] = {};
+            if(!opt[build_target].options) opt[build_target].options = {};
+
+            // apply for the current options
+            opt[build_target].options.in_dir = options.export_dir+"/";
+
+            // update grunt config instance
+            grunt.config.set("phantomizer-dir-htmlcompressor", opt);
+
+            tasks.push("phantomizer-dir-htmlcompressor:"+build_target);
+        }
+
+        if( options.html_manifest == true ){
+            // Adjust phantomizer-project-manifest options
+            opt = grunt.config.get("phantomizer-project-manifest");
+            if(!opt[tgt_env]) opt[tgt_env] = {};
+            if(!opt[tgt_env].options) opt[tgt_env].options = {};
+
+            // apply for the current options
+            opt[tgt_env].options.target_path = options.export_dir+"/";
+
+            // update grunt config instance
+            grunt.config.set("phantomizer-project-manifest", opt);
+
+            tasks.push("phantomizer-project-manifest:"+tgt_env);
+        }
+
+        if( options.sitemap == true ){
+            // Adjust phantomizer-sitemap options
+            opt = grunt.config.get("phantomizer-sitemap");
+            if(!opt[tgt_env]) opt[tgt_env] = {};
+            if(!opt[tgt_env].options) opt[tgt_env].options = {};
+
+            // apply for the current options
+            opt[tgt_env].options.target_path = options.export_dir+"/";
+            opt[tgt_env].options.base_url = options.web_domain?"http://"+options.web_domain:"";
+
+            // update grunt config instance
+            grunt.config.set("phantomizer-sitemap", opt);
+
+            tasks.push("phantomizer-sitemap:"+tgt_env);
+        }
+
+        // invoke next tasks to run
+        grunt.task.run( tasks );
     });
 
 
 
-    // <h3>Export a phantomizer project</h3>
+    // Export a phantomizer project
+    // ----------
     // Once a phantomizer project is built, this task is able to export it
     grunt.registerMultiTask("phantomizer-export-build", "", function () {
 
@@ -172,5 +255,4 @@ module.exports = function(grunt) {
             }
         }
     }
-
 };
