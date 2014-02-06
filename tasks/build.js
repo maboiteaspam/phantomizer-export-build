@@ -92,40 +92,42 @@ module.exports = function(grunt) {
             grunt.verbose.write("Directory cleaned "+clean_dir[n])
         }
 
+        var tasks = [
+        ];
 
-        // Adjust phantomizer-html-project-builder options
+        // Builds all html route and the assets contained into it
+        // ------------
+        // Adjust options
         var build_target = options.build_target;
         var opt = grunt.config.get("phantomizer-html-project-builder");
         if(!opt[build_target]) opt[build_target] = {};
         if(!opt[build_target].options) opt[build_target].options = {};
 
-        // apply for the current options
+        // update grunt config instance
         opt[build_target].options.inject_extras = options.inject_extras;
         opt[build_target].options.build_assets = options.build_assets;
-
-        // update grunt config instance
         grunt.config.set("phantomizer-html-project-builder", opt);
 
+        tasks.push("phantomizer-html-project-builder:"+build_target);
 
-        // Adjust phantomizer-export-build options
+        // copy files from many sources directories (src, wbm, vendors, dirlisting)
+        // ------------
+        // to export dir
+        // Adjust options
         opt = grunt.config.get("phantomizer-export-build");
         if(!opt[tgt_env]) opt[tgt_env] = {};
         if(!opt[tgt_env].options) opt[tgt_env].options = {};
 
-        // apply for the current options
+        // update grunt config instance
         opt[tgt_env].options.export_dir = options.export_dir;
         opt[tgt_env].options.rm_files = options.rm_files;
         opt[tgt_env].options.rm_dir = options.rm_dir;
-
-        // update grunt config instance
         grunt.config.set("phantomizer-export-build", opt);
 
+        tasks.push("phantomizer-export-build:"+tgt_env);
 
-        var tasks = [
-            "phantomizer-html-project-builder:"+build_target,
-            "phantomizer-export-build:"+tgt_env
-        ];
-
+        // compress export dir html files
+        // ------------
         if( options.htmlcompressor == true ){
             // Adjust phantomizer-dir-htmlcompressor options
             opt = grunt.config.get("phantomizer-dir-htmlcompressor");
@@ -141,6 +143,8 @@ module.exports = function(grunt) {
             tasks.push("phantomizer-dir-htmlcompressor:"+build_target);
         }
 
+        // parse export dir html files, and produce a manifest
+        // ------------
         if( options.html_manifest == true ){
             // Adjust phantomizer-project-manifest options
             opt = grunt.config.get("phantomizer-project-manifest");
@@ -156,6 +160,8 @@ module.exports = function(grunt) {
             tasks.push("phantomizer-project-manifest:"+tgt_env);
         }
 
+        // parse export dir html files, and produce a manifest
+        // ------------
         if( options.sitemap == true ){
             // Adjust phantomizer-sitemap options
             opt = grunt.config.get("phantomizer-sitemap");
