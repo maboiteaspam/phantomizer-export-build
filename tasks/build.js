@@ -209,13 +209,14 @@ module.exports = function(grunt) {
         var rm_dir          = options.rm_dir;
         var rm_files        = options.rm_files;
 
-        grunt.log.ok("Exporting to "+export_dir );
+        grunt.log.ok("Export to "+path.relative(process.cwd(),export_dir) );
 
         // ensure the target directory exists
         grunt.file.mkdir( export_dir );
 
         // foreach paths, recursively copy files matching provided pattern
         for( var n in paths ){
+          grunt.log.ok("Copy from "+path.relative(process.cwd(),paths[n]));
             for( var k in copy_patterns ){
                 copy_recusive(paths[n], copy_patterns[k], export_dir);
             }
@@ -223,11 +224,11 @@ module.exports = function(grunt) {
 
         // clean up output directory
         for( var n in rm_dir ){
-            grunt.log.ok("Deleting "+rm_dir[n]);
+          grunt.log.ok("Delete directory "+path.relative(process.cwd(),rm_dir[n]));
             grunt.file.delete(rm_dir[n], {force: true})
         }
         for( var n in rm_files ){
-            grunt.log.ok("Deleting "+rm_files[n]);
+          grunt.log.ok("Delete file "+path.relative(process.cwd(),rm_files[n]));
             grunt.file.delete(rm_files[n])
         }
     });
