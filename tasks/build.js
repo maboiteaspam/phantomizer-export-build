@@ -33,11 +33,10 @@ module.exports = function(grunt) {
     // asynchronous task
     var done = this.async();
 
-    // get current config, all grunt config
-    var config = grunt.config.get();
-    // create a new url router in order to collect urls to build
-    var router_factory = ph_libutil.router;
-    var router = new router_factory(config.routing)
+    // get phantomizer main instance
+    var phantomizer = ph_libutil.get("main");
+    var router = phantomizer.get_router();
+
     // eventually from a remote service
     router.load(function(){
       var urls = router.collect_urls();
