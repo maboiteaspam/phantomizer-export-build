@@ -1,6 +1,6 @@
 {
   "name": "phantomizer-export-build",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "private": true,
   "description": "Export built application for phantomizer",
   "keywords": "",
