@@ -28,9 +28,9 @@
 module.exports = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(grunt)</span> {</span>
 
 
-    <span class="hljs-keyword">var</span> ph_libutil = <span class="hljs-built_in">require</span>(<span class="hljs-string">"phantomizer-libutil"</span>);
-    <span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">"fs"</span>);
-    <span class="hljs-keyword">var</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);</pre></div>
+  <span class="hljs-keyword">var</span> ph_libutil = <span class="hljs-built_in">require</span>(<span class="hljs-string">"phantomizer-libutil"</span>);
+  <span class="hljs-keyword">var</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">"fs"</span>);
+  <span class="hljs-keyword">var</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);</pre></div>
         
       
         
@@ -42,99 +42,92 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         <p>build provided url against a webserver</p>
 
         
-          <div class='highlight'><pre>    grunt.registerTask(<span class="hljs-string">"phantomizer-build"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
+          <div class='highlight'><pre>  grunt.registerTask(<span class="hljs-string">"phantomizer-build"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
         
       
         
         <p>default options</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({</pre></div>
+          <div class='highlight'><pre>    <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({</pre></div>
         
       
         
         <p>clean_dir is an array of directory path to clean before the build occurs</p>
 
         
-          <div class='highlight'><pre>            clean_dir:[],</pre></div>
+          <div class='highlight'><pre>      clean_dir:[],</pre></div>
         
       
         
         <p>build_target define the optimization level to apply to the builded page</p>
 
         
-          <div class='highlight'><pre>            build_target:<span class="hljs-string">""</span>
-        });
+          <div class='highlight'><pre>      build_target:<span class="hljs-string">""</span>
+    });
 
-        <span class="hljs-keyword">var</span> build_target    = options.build_target;
-        <span class="hljs-keyword">var</span> clean_dir       = options.clean_dir;</pre></div>
+    <span class="hljs-keyword">var</span> build_target    = options.build_target;
+    <span class="hljs-keyword">var</span> clean_dir       = options.clean_dir;</pre></div>
         
       
         
         <p>ensure directories are empty</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> clean_dir ){
-            grunt.file.delete(clean_dir[n], {force: <span class="hljs-literal">true</span>})
-            grunt.file.mkdir(clean_dir[n])
-            grunt.verbose.write(<span class="hljs-string">"Directory cleaned "</span>+clean_dir[n])
-        }</pre></div>
+          <div class='highlight'><pre>    <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> clean_dir ){
+      grunt.file.delete(clean_dir[n], {force: <span class="hljs-literal">true</span>})
+      grunt.file.mkdir(clean_dir[n])
+      grunt.verbose.write(<span class="hljs-string">"Directory cleaned "</span>+clean_dir[n])
+    }</pre></div>
         
       
         
         <p>asynchronous task</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> done = <span class="hljs-keyword">this</span>.async();</pre></div>
+          <div class='highlight'><pre>    <span class="hljs-keyword">var</span> done = <span class="hljs-keyword">this</span>.async();</pre></div>
         
       
         
-        <p>get current config, all grunt config</p>
+        <p>get phantomizer main instance</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> config = grunt.config.get();</pre></div>
-        
-      
-        
-        <p>create a new url router in order to collect urls to build</p>
-
-        
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> router_factory = ph_libutil.router;
-        <span class="hljs-keyword">var</span> router = <span class="hljs-keyword">new</span> router_factory(config.routing)</pre></div>
+          <div class='highlight'><pre>    <span class="hljs-keyword">var</span> phantomizer = ph_libutil.get(<span class="hljs-string">"main"</span>);
+    <span class="hljs-keyword">var</span> router = phantomizer.get_router();</pre></div>
         
       
         
         <p>eventually from a remote service</p>
 
         
-          <div class='highlight'><pre>        router.load(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
-            <span class="hljs-keyword">var</span> urls = router.collect_urls();
-            <span class="hljs-keyword">var</span> tasks = [];</pre></div>
+          <div class='highlight'><pre>    router.load(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span>{</span>
+      <span class="hljs-keyword">var</span> urls = router.collect_urls();
+      <span class="hljs-keyword">var</span> tasks = [];</pre></div>
         
       
         
         <p>foreach url push a new grunt task to actually build the url</p>
 
         
-          <div class='highlight'><pre>            <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> urls ){
-                tasks.push(<span class="hljs-string">"phantomizer-html-jitbuild:"</span>+build_target+<span class="hljs-string">":"</span>+urls[n])
-            }</pre></div>
+          <div class='highlight'><pre>      <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> urls ){
+        tasks.push(<span class="hljs-string">"phantomizer-html-jitbuild:"</span>+build_target+<span class="hljs-string">":"</span>+urls[n])
+      }</pre></div>
         
       
         
         <p>invoke the by-url build task</p>
 
         
-          <div class='highlight'><pre>            grunt.task.run( tasks );</pre></div>
+          <div class='highlight'><pre>      grunt.task.run( tasks );</pre></div>
         
       
         
         <p>consume the async handler to let new tasks to run</p>
 
         
-          <div class='highlight'><pre>            done();
-        });
-    });</pre></div>
+          <div class='highlight'><pre>      done();
+    });
+  });</pre></div>
         
       
         
@@ -147,88 +140,154 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
 this task specifically helps to drive the build by environment</p>
 
         
-          <div class='highlight'><pre>    grunt.registerMultiTask(<span class="hljs-string">"phantomizer-project-builder"</span>,
-        <span class="hljs-string">"Builds an entire project with best performance"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
+          <div class='highlight'><pre>  grunt.registerMultiTask(<span class="hljs-string">"phantomizer-project-builder"</span>,
+    <span class="hljs-string">"Builds an entire project with best performance"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
         
       
         
         <p>default task options</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({</pre></div>
+          <div class='highlight'><pre>      <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({</pre></div>
         
       
         
         <p>the directories to clean before the build</p>
 
         
-          <div class='highlight'><pre>            clean_dir:[],</pre></div>
+          <div class='highlight'><pre>        clean_dir:[],</pre></div>
         
       
         
         <p>the grunt target to use for page optimization level</p>
 
         
-          <div class='highlight'><pre>            build_target:<span class="hljs-string">""</span>,</pre></div>
+          <div class='highlight'><pre>        build_target:<span class="hljs-string">""</span>,</pre></div>
         
       
         
         <p>inject extras loader into the page</p>
 
         
-          <div class='highlight'><pre>            inject_extras:<span class="hljs-literal">false</span>,</pre></div>
+          <div class='highlight'><pre>        inject_extras:<span class="hljs-literal">false</span>,</pre></div>
         
       
         
         
         
-          <div class='highlight'><pre>            build_assets:<span class="hljs-literal">false</span>,</pre></div>
+          <div class='highlight'><pre>        build_assets:<span class="hljs-literal">false</span>,</pre></div>
         
       
         
         <p>appcache support</p>
 
         
-          <div class='highlight'><pre>            html_manifest:<span class="hljs-literal">false</span>,</pre></div>
+          <div class='highlight'><pre>        html_manifest:<span class="hljs-literal">false</span>,</pre></div>
         
       
         
         <p>sitemap support</p>
 
         
-          <div class='highlight'><pre>            sitemap:<span class="hljs-literal">false</span>,
-            web_domain:<span class="hljs-string">""</span>,</pre></div>
+          <div class='highlight'><pre>        sitemap:<span class="hljs-literal">false</span>,
+        web_domain:<span class="hljs-string">""</span>,</pre></div>
         
       
         
         <p>minify html</p>
 
         
-          <div class='highlight'><pre>            htmlcompressor:<span class="hljs-literal">false</span>,
-            export_dir:<span class="hljs-string">""</span>
-        });
+          <div class='highlight'><pre>        htmlcompressor:<span class="hljs-literal">false</span>,
+        export_dir:<span class="hljs-string">""</span>
+      });
 
-        <span class="hljs-keyword">var</span> tgt_env = <span class="hljs-keyword">this</span>.target;</pre></div>
+      <span class="hljs-keyword">var</span> tgt_env = <span class="hljs-keyword">this</span>.target;</pre></div>
         
       
         
         <p>ensure directories are clean</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> clean_dir = options.clean_dir;
-        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> clean_dir ){
-            grunt.file.delete(clean_dir[n], {force: <span class="hljs-literal">true</span>})
-            grunt.file.mkdir(clean_dir[n]);
-            grunt.verbose.write(<span class="hljs-string">"Directory cleaned "</span>+clean_dir[n])
-        }</pre></div>
+          <div class='highlight'><pre>      <span class="hljs-keyword">var</span> clean_dir = options.clean_dir;
+      <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> clean_dir ){
+        grunt.file.delete(clean_dir[n], {force: <span class="hljs-literal">true</span>})
+        grunt.file.mkdir(clean_dir[n]);
+        grunt.verbose.write(<span class="hljs-string">"Directory cleaned "</span>+clean_dir[n])
+      }
+
+      <span class="hljs-keyword">var</span> tasks = [
+      ];</pre></div>
         
       
         
-        <p>Adjust phantomizer-html-project-builder options</p>
+        <h2 id="builds-all-html-route-and-the-assets-contained-into-it">Builds all html route and the assets contained into it</h2>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> build_target = options.build_target;
-        <span class="hljs-keyword">var</span> opt = grunt.config.get(<span class="hljs-string">"phantomizer-html-project-builder"</span>);
+      
+        
+        <p>Adjust options</p>
+
+        
+          <div class='highlight'><pre>      <span class="hljs-keyword">var</span> build_target = options.build_target;
+      <span class="hljs-keyword">var</span> opt = grunt.config.get(<span class="hljs-string">"phantomizer-html-project-builder"</span>);
+      <span class="hljs-keyword">if</span>(!opt[build_target]) opt[build_target] = {};
+      <span class="hljs-keyword">if</span>(!opt[build_target].options) opt[build_target].options = {};</pre></div>
+        
+      
+        
+        <p>update grunt config instance</p>
+
+        
+          <div class='highlight'><pre>      opt[build_target].options.inject_extras = options.inject_extras;
+      opt[build_target].options.build_assets = options.build_assets;
+      grunt.config.set(<span class="hljs-string">"phantomizer-html-project-builder"</span>, opt);
+
+      tasks.push(<span class="hljs-string">"phantomizer-html-project-builder:"</span>+build_target);</pre></div>
+        
+      
+        
+        <h2 id="copy-files-from-many-sources-directories-src-wbm-vendors-dirlisting-">copy files from many sources directories (src, wbm, vendors, dirlisting)</h2>
+
+        
+      
+        
+        <p>to export dir
+Adjust options</p>
+
+        
+          <div class='highlight'><pre>      opt = grunt.config.get(<span class="hljs-string">"phantomizer-export-build"</span>);
+      <span class="hljs-keyword">if</span>(!opt[tgt_env]) opt[tgt_env] = {};
+      <span class="hljs-keyword">if</span>(!opt[tgt_env].options) opt[tgt_env].options = {};</pre></div>
+        
+      
+        
+        <p>update grunt config instance</p>
+
+        
+          <div class='highlight'><pre>      opt[tgt_env].options.export_dir = options.export_dir;
+      opt[tgt_env].options.rm_files = options.rm_files;
+      opt[tgt_env].options.rm_dir = options.rm_dir;
+      grunt.config.set(<span class="hljs-string">"phantomizer-export-build"</span>, opt);
+
+      tasks.push(<span class="hljs-string">"phantomizer-export-build:"</span>+tgt_env);</pre></div>
+        
+      
+        
+        <h2 id="compress-export-dir-html-files">compress export dir html files</h2>
+
+        
+      
+        
+        
+        
+          <div class='highlight'><pre>      <span class="hljs-keyword">if</span>( options.htmlcompressor == <span class="hljs-literal">true</span> ){</pre></div>
+        
+      
+        
+        <p>Adjust phantomizer-dir-htmlcompressor options</p>
+
+        
+          <div class='highlight'><pre>        opt = grunt.config.get(<span class="hljs-string">"phantomizer-dir-htmlcompressor"</span>);
         <span class="hljs-keyword">if</span>(!opt[build_target]) opt[build_target] = {};
         <span class="hljs-keyword">if</span>(!opt[build_target].options) opt[build_target].options = {};</pre></div>
         
@@ -237,22 +296,35 @@ this task specifically helps to drive the build by environment</p>
         <p>apply for the current options</p>
 
         
-          <div class='highlight'><pre>        opt[build_target].options.inject_extras = options.inject_extras;
-        opt[build_target].options.build_assets = options.build_assets;</pre></div>
+          <div class='highlight'><pre>        opt[build_target].options.in_dir = options.export_dir+<span class="hljs-string">"/"</span>;</pre></div>
         
       
         
         <p>update grunt config instance</p>
 
         
-          <div class='highlight'><pre>        grunt.config.set(<span class="hljs-string">"phantomizer-html-project-builder"</span>, opt);</pre></div>
+          <div class='highlight'><pre>        grunt.config.set(<span class="hljs-string">"phantomizer-dir-htmlcompressor"</span>, opt);
+
+        tasks.push(<span class="hljs-string">"phantomizer-dir-htmlcompressor:"</span>+build_target);
+      }</pre></div>
         
       
         
-        <p>Adjust phantomizer-export-build options</p>
+        <h2 id="parse-export-dir-html-files-and-produce-a-manifest">parse export dir html files, and produce a manifest</h2>
 
         
-          <div class='highlight'><pre>        opt = grunt.config.get(<span class="hljs-string">"phantomizer-export-build"</span>);
+      
+        
+        
+        
+          <div class='highlight'><pre>      <span class="hljs-keyword">if</span>( options.html_manifest == <span class="hljs-literal">true</span> ){</pre></div>
+        
+      
+        
+        <p>Adjust phantomizer-project-manifest options</p>
+
+        
+          <div class='highlight'><pre>        opt = grunt.config.get(<span class="hljs-string">"phantomizer-project-manifest"</span>);
         <span class="hljs-keyword">if</span>(!opt[tgt_env]) opt[tgt_env] = {};
         <span class="hljs-keyword">if</span>(!opt[tgt_env].options) opt[tgt_env].options = {};</pre></div>
         
@@ -261,114 +333,62 @@ this task specifically helps to drive the build by environment</p>
         <p>apply for the current options</p>
 
         
-          <div class='highlight'><pre>        opt[tgt_env].options.export_dir = options.export_dir;
-        opt[tgt_env].options.rm_files = options.rm_files;
-        opt[tgt_env].options.rm_dir = options.rm_dir;</pre></div>
+          <div class='highlight'><pre>        opt[tgt_env].options.target_path = options.export_dir+<span class="hljs-string">"/"</span>;</pre></div>
         
       
         
         <p>update grunt config instance</p>
 
         
-          <div class='highlight'><pre>        grunt.config.set(<span class="hljs-string">"phantomizer-export-build"</span>, opt);
+          <div class='highlight'><pre>        grunt.config.set(<span class="hljs-string">"phantomizer-project-manifest"</span>, opt);
 
-
-        <span class="hljs-keyword">var</span> tasks = [
-            <span class="hljs-string">"phantomizer-html-project-builder:"</span>+build_target,
-            <span class="hljs-string">"phantomizer-export-build:"</span>+tgt_env
-        ];
-
-        <span class="hljs-keyword">if</span>( options.htmlcompressor == <span class="hljs-literal">true</span> ){</pre></div>
+        tasks.push(<span class="hljs-string">"phantomizer-project-manifest:"</span>+tgt_env);
+      }</pre></div>
         
       
         
-        <p>Adjust phantomizer-dir-htmlcompressor options</p>
+        <h2 id="parse-export-dir-html-files-and-produce-a-manifest">parse export dir html files, and produce a manifest</h2>
 
-        
-          <div class='highlight'><pre>            opt = grunt.config.get(<span class="hljs-string">"phantomizer-dir-htmlcompressor"</span>);
-            <span class="hljs-keyword">if</span>(!opt[build_target]) opt[build_target] = {};
-            <span class="hljs-keyword">if</span>(!opt[build_target].options) opt[build_target].options = {};</pre></div>
         
       
         
-        <p>apply for the current options</p>
-
         
-          <div class='highlight'><pre>            opt[build_target].options.in_dir = options.export_dir+<span class="hljs-string">"/"</span>;</pre></div>
         
-      
-        
-        <p>update grunt config instance</p>
-
-        
-          <div class='highlight'><pre>            grunt.config.set(<span class="hljs-string">"phantomizer-dir-htmlcompressor"</span>, opt);
-
-            tasks.push(<span class="hljs-string">"phantomizer-dir-htmlcompressor:"</span>+build_target);
-        }
-
-        <span class="hljs-keyword">if</span>( options.html_manifest == <span class="hljs-literal">true</span> ){</pre></div>
-        
-      
-        
-        <p>Adjust phantomizer-project-manifest options</p>
-
-        
-          <div class='highlight'><pre>            opt = grunt.config.get(<span class="hljs-string">"phantomizer-project-manifest"</span>);
-            <span class="hljs-keyword">if</span>(!opt[tgt_env]) opt[tgt_env] = {};
-            <span class="hljs-keyword">if</span>(!opt[tgt_env].options) opt[tgt_env].options = {};</pre></div>
-        
-      
-        
-        <p>apply for the current options</p>
-
-        
-          <div class='highlight'><pre>            opt[tgt_env].options.target_path = options.export_dir+<span class="hljs-string">"/"</span>;</pre></div>
-        
-      
-        
-        <p>update grunt config instance</p>
-
-        
-          <div class='highlight'><pre>            grunt.config.set(<span class="hljs-string">"phantomizer-project-manifest"</span>, opt);
-
-            tasks.push(<span class="hljs-string">"phantomizer-project-manifest:"</span>+tgt_env);
-        }
-
-        <span class="hljs-keyword">if</span>( options.sitemap == <span class="hljs-literal">true</span> ){</pre></div>
+          <div class='highlight'><pre>      <span class="hljs-keyword">if</span>( options.sitemap == <span class="hljs-literal">true</span> ){</pre></div>
         
       
         
         <p>Adjust phantomizer-sitemap options</p>
 
         
-          <div class='highlight'><pre>            opt = grunt.config.get(<span class="hljs-string">"phantomizer-sitemap"</span>);
-            <span class="hljs-keyword">if</span>(!opt[tgt_env]) opt[tgt_env] = {};
-            <span class="hljs-keyword">if</span>(!opt[tgt_env].options) opt[tgt_env].options = {};</pre></div>
+          <div class='highlight'><pre>        opt = grunt.config.get(<span class="hljs-string">"phantomizer-sitemap"</span>);
+        <span class="hljs-keyword">if</span>(!opt[tgt_env]) opt[tgt_env] = {};
+        <span class="hljs-keyword">if</span>(!opt[tgt_env].options) opt[tgt_env].options = {};</pre></div>
         
       
         
         <p>apply for the current options</p>
 
         
-          <div class='highlight'><pre>            opt[tgt_env].options.target_path = options.export_dir+<span class="hljs-string">"/"</span>;
-            opt[tgt_env].options.base_url = options.web_domain?<span class="hljs-string">"http://"</span>+options.web_domain:<span class="hljs-string">""</span>;</pre></div>
+          <div class='highlight'><pre>        opt[tgt_env].options.target_path = options.export_dir+<span class="hljs-string">"/"</span>;
+        opt[tgt_env].options.base_url = options.web_domain?<span class="hljs-string">"http://"</span>+options.web_domain:<span class="hljs-string">""</span>;</pre></div>
         
       
         
         <p>update grunt config instance</p>
 
         
-          <div class='highlight'><pre>            grunt.config.set(<span class="hljs-string">"phantomizer-sitemap"</span>, opt);
+          <div class='highlight'><pre>        grunt.config.set(<span class="hljs-string">"phantomizer-sitemap"</span>, opt);
 
-            tasks.push(<span class="hljs-string">"phantomizer-sitemap:"</span>+tgt_env);
-        }</pre></div>
+        tasks.push(<span class="hljs-string">"phantomizer-sitemap:"</span>+tgt_env);
+      }</pre></div>
         
       
         
         <p>invoke next tasks to run</p>
 
         
-          <div class='highlight'><pre>        grunt.task.run( tasks );
+          <div class='highlight'><pre>      grunt.task.run( tasks );
     });</pre></div>
         
       
@@ -381,150 +401,151 @@ this task specifically helps to drive the build by environment</p>
         <p>Once a phantomizer project is built, this task is able to export it</p>
 
         
-          <div class='highlight'><pre>    grunt.registerMultiTask(<span class="hljs-string">"phantomizer-export-build"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
+          <div class='highlight'><pre>  grunt.registerMultiTask(<span class="hljs-string">"phantomizer-export-build"</span>, <span class="hljs-string">""</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> {</span></pre></div>
         
       
         
         <p>default task options</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({</pre></div>
+          <div class='highlight'><pre>    <span class="hljs-keyword">var</span> options = <span class="hljs-keyword">this</span>.options({</pre></div>
         
       
         
         <p>paths an Array(directory_path)</p>
 
         
-          <div class='highlight'><pre>            paths:[],</pre></div>
+          <div class='highlight'><pre>      paths:[],</pre></div>
         
       
         
         <p>copy_patterns an Array(pattern) : <em>*/</em>.html</p>
 
         
-          <div class='highlight'><pre>            copy_patterns:[],</pre></div>
+          <div class='highlight'><pre>      copy_patterns:[],</pre></div>
         
       
         
         <p>export_dir the target directory of the delivery</p>
 
         
-          <div class='highlight'><pre>            export_dir:<span class="hljs-string">""</span>,</pre></div>
+          <div class='highlight'><pre>      export_dir:<span class="hljs-string">""</span>,</pre></div>
         
       
         
         <p>rm_dir the directories to clean in the export_dir</p>
 
         
-          <div class='highlight'><pre>            rm_dir:[],</pre></div>
+          <div class='highlight'><pre>      rm_dir:[],</pre></div>
         
       
         
         <p>rm_file the files to clean in the export_dir</p>
 
         
-          <div class='highlight'><pre>            rm_files:[]
-        });
+          <div class='highlight'><pre>      rm_files:[]
+    });
 
-        <span class="hljs-keyword">var</span> paths           = options.paths;
-        <span class="hljs-keyword">var</span> copy_patterns   = options.copy_patterns;
-        <span class="hljs-keyword">var</span> export_dir      = options.export_dir;
-        <span class="hljs-keyword">var</span> rm_dir          = options.rm_dir;
-        <span class="hljs-keyword">var</span> rm_files        = options.rm_files;
+    <span class="hljs-keyword">var</span> paths           = options.paths;
+    <span class="hljs-keyword">var</span> copy_patterns   = options.copy_patterns;
+    <span class="hljs-keyword">var</span> export_dir      = options.export_dir;
+    <span class="hljs-keyword">var</span> rm_dir          = options.rm_dir;
+    <span class="hljs-keyword">var</span> rm_files        = options.rm_files;
 
-        grunt.log.ok(<span class="hljs-string">"Exporting to "</span>+export_dir );</pre></div>
+    grunt.log.ok(<span class="hljs-string">"Export to "</span>+path.relative(process.cwd(),export_dir) );</pre></div>
         
       
         
         <p>ensure the target directory exists</p>
 
         
-          <div class='highlight'><pre>        grunt.file.mkdir( export_dir );</pre></div>
+          <div class='highlight'><pre>    grunt.file.mkdir( export_dir );</pre></div>
         
       
         
         <p>foreach paths, recursively copy files matching provided pattern</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> paths ){
-            <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> k <span class="hljs-keyword">in</span> copy_patterns ){
-                copy_recusive(paths[n], copy_patterns[k], export_dir);
-            }
-        }</pre></div>
+          <div class='highlight'><pre>    <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> paths ){
+      grunt.log.ok(<span class="hljs-string">"Copy from "</span>+path.relative(process.cwd(),paths[n]));
+      <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> k <span class="hljs-keyword">in</span> copy_patterns ){
+        copy_recusive(paths[n], copy_patterns[k], export_dir);
+      }
+    }</pre></div>
         
       
         
         <p>clean up output directory</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> rm_dir ){
-            grunt.log.ok(<span class="hljs-string">"Deleting "</span>+rm_dir[n]);
-            grunt.file.delete(rm_dir[n], {force: <span class="hljs-literal">true</span>})
-        }
-        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> rm_files ){
-            grunt.log.ok(<span class="hljs-string">"Deleting "</span>+rm_files[n]);
-            grunt.file.delete(rm_files[n])
-        }
-    });</pre></div>
+          <div class='highlight'><pre>    <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> rm_dir ){
+      grunt.log.ok(<span class="hljs-string">"Delete directory "</span>+path.relative(process.cwd(),rm_dir[n]));
+      grunt.file.delete(rm_dir[n], {force: <span class="hljs-literal">true</span>})
+    }
+    <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> rm_files ){
+      grunt.log.ok(<span class="hljs-string">"Delete file "</span>+path.relative(process.cwd(),rm_files[n]));
+      grunt.file.delete(rm_files[n])
+    }
+  });</pre></div>
         
       
         
         <p>helper function</p>
 
         
-          <div class='highlight'><pre>    <span class="hljs-comment">/**
-     * Search for corresponding
-     * pattern file in source
-     * and copy those files to output
-     * @param source
-     * @param pattern
-     * @param output
-     */</span>
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">copy_recusive</span><span class="hljs-params">( source, pattern, output )</span>{</span></pre></div>
+          <div class='highlight'><pre>  <span class="hljs-comment">/**
+   * Search for corresponding
+   * pattern file in source
+   * and copy those files to output
+   * @param source
+   * @param pattern
+   * @param output
+   */</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">copy_recusive</span><span class="hljs-params">( source, pattern, output )</span>{</span></pre></div>
         
       
         
         <p>expand source directory with pattern</p>
 
         
-          <div class='highlight'><pre>        <span class="hljs-keyword">var</span> files = grunt.file.expand({}, [source+pattern]);
-        <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> files ){</pre></div>
+          <div class='highlight'><pre>    <span class="hljs-keyword">var</span> files = grunt.file.expand({}, [source+pattern]);
+    <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> files ){</pre></div>
         
       
         
         <p>get only the relative path</p>
 
         
-          <div class='highlight'><pre>            <span class="hljs-keyword">var</span> f = files[n].substring(source.length)
-            <span class="hljs-keyword">if</span>( f != <span class="hljs-string">""</span> ){</pre></div>
+          <div class='highlight'><pre>      <span class="hljs-keyword">var</span> f = files[n].substring(source.length)
+      <span class="hljs-keyword">if</span>( f != <span class="hljs-string">""</span> ){</pre></div>
         
       
         
         <p>if the source path is a directory</p>
 
         
-          <div class='highlight'><pre>                <span class="hljs-keyword">if</span>( grunt.file.isDir(files[n]) ){</pre></div>
+          <div class='highlight'><pre>        <span class="hljs-keyword">if</span>( grunt.file.isDir(files[n]) ){</pre></div>
         
       
         
         <p>create output</p>
 
         
-          <div class='highlight'><pre>                    grunt.file.mkdir( output+<span class="hljs-string">"/"</span>+f )
-                }<span class="hljs-keyword">else</span>{</pre></div>
+          <div class='highlight'><pre>          grunt.file.mkdir( output+<span class="hljs-string">"/"</span>+f )
+        }<span class="hljs-keyword">else</span>{</pre></div>
         
       
         
         <p>copy the file</p>
 
         
-          <div class='highlight'><pre>                    <span class="hljs-keyword">var</span> output_f = (output+<span class="hljs-string">"/"</span>+f).replace(<span class="hljs-string">"//"</span>,<span class="hljs-string">"/"</span>)
-                    grunt.file.copy(source+<span class="hljs-string">"/"</span>+f, output_f)
-                    grunt.verbose.ok(<span class="hljs-string">"copying "</span>+source+<span class="hljs-string">"/"</span>+f+<span class="hljs-string">" "</span>+output_f);
-                }
-            }
+          <div class='highlight'><pre>          <span class="hljs-keyword">var</span> output_f = (output+<span class="hljs-string">"/"</span>+f).replace(<span class="hljs-string">"//"</span>,<span class="hljs-string">"/"</span>)
+          grunt.file.copy(source+<span class="hljs-string">"/"</span>+f, output_f)
+          grunt.verbose.ok(<span class="hljs-string">"copying "</span>+source+<span class="hljs-string">"/"</span>+f+<span class="hljs-string">" "</span>+output_f);
         }
+      }
     }
+  }
 };</pre></div>
         
       
