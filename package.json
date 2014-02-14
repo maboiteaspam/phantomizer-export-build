@@ -1,6 +1,6 @@
 {
   "name": "phantomizer-export-build",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "private": true,
   "description": "Export built application for phantomizer",
   "keywords": "",
@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "grunt": "0.4.x",
-    "phantomizer-libutil": "git://github.com/maboiteaspam/phantomizer-libutil.git"
+    "phantomizer-libutil": "maboiteaspam/phantomizer-libutil"
   },
   "devDependencies": {
     "docco": "jashkenas/docco",
