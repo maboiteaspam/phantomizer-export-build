@@ -44,7 +44,19 @@ module.exports = function(grunt) {
       var tasks = [];
       // foreach url push a new grunt task to actually build the url
       for( var n in urls ){
-        tasks.push("phantomizer-html-jitbuild:"+build_target+":"+urls[n])
+
+        var sub_task_options = {}
+        grunt.util._.merge(sub_task_options, grunt.config("phantomizer-html-builder"));
+
+        if( !sub_task_options[build_target] )
+          sub_task_options[build_target] = {
+            options:{}
+          }
+
+        sub_task_options[build_target]["options"]["request"] = urls[n];
+
+        grunt.config.set("phantomizer-html-builder", sub_task_options);
+        grunt.task.run("phantomizer-html-builder:" + build_target);
       }
       // invoke the by-url build task
       grunt.task.run( tasks );
