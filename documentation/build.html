@@ -92,7 +92,8 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
         <p>get phantomizer main instance</p>
 
         
-          <div class='highlight'><pre>    <span class="hljs-keyword">var</span> phantomizer = ph_libutil.get(<span class="hljs-string">"main"</span>);
+          <div class='highlight'><pre>    <span class="hljs-keyword">var</span> Phantomizer = ph_libutil.Phantomizer;
+    <span class="hljs-keyword">var</span> phantomizer = <span class="hljs-keyword">new</span> Phantomizer(process.cwd(),grunt);
     <span class="hljs-keyword">var</span> router = phantomizer.get_router();</pre></div>
         
       
@@ -110,7 +111,19 @@ module.exports = <span class="hljs-function"><span class="hljs-keyword">function
 
         
           <div class='highlight'><pre>      <span class="hljs-keyword">for</span>( <span class="hljs-keyword">var</span> n <span class="hljs-keyword">in</span> urls ){
-        tasks.push(<span class="hljs-string">"phantomizer-html-jitbuild:"</span>+build_target+<span class="hljs-string">":"</span>+urls[n])
+
+        <span class="hljs-keyword">var</span> sub_task_options = {}
+        grunt.util._.merge(sub_task_options, grunt.config(<span class="hljs-string">"phantomizer-html-builder"</span>));
+
+        <span class="hljs-keyword">if</span>( !sub_task_options[build_target] )
+          sub_task_options[build_target] = {
+            options:{}
+          }
+
+        sub_task_options[build_target][<span class="hljs-string">"options"</span>][<span class="hljs-string">"request"</span>] = urls[n];
+
+        grunt.config.set(<span class="hljs-string">"phantomizer-html-builder"</span>, sub_task_options);
+        grunt.task.run(<span class="hljs-string">"phantomizer-html-builder:"</span> + build_target);
       }</pre></div>
         
       
