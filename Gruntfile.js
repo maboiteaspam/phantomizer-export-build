@@ -49,7 +49,7 @@ module.exports = function(grunt) {
 
   // juts run this command to generate docco doc and push on github
   // grunt
-  grunt.registerTask('default', ['docco','gh-pages', 'cleanup-grunt-temp']);
+  grunt.registerTask('default', ['release:patch','docco','gh-pages', 'cleanup-grunt-temp']);
 
   // to release the project in a new version
   // use one of those commands
