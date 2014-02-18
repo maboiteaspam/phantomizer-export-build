@@ -138,6 +138,23 @@ module.exports = function(grunt) {
 
       tasks.push("phantomizer-export-build:"+tgt_env);
 
+      // parse export dir html files, and produce a manifest
+      // ------------
+      if( options.html_manifest != false ){
+        // Adjust phantomizer-project-manifest options
+        opt = grunt.config.get("phantomizer-project-manifest");
+        if(!opt[tgt_env]) opt[tgt_env] = {};
+        if(!opt[tgt_env].options) opt[tgt_env].options = {};
+
+        // apply for the current options
+        opt[tgt_env].options.target_path = options.export_dir+"/";
+
+        // update grunt config instance
+        grunt.config.set("phantomizer-project-manifest", opt);
+
+        tasks.push("phantomizer-project-manifest:"+tgt_env);
+      }
+
       // compress export dir html files
       // ------------
       if( options.htmlcompressor == true ){
@@ -153,23 +170,6 @@ module.exports = function(grunt) {
         grunt.config.set("phantomizer-dir-htmlcompressor", opt);
 
         tasks.push("phantomizer-dir-htmlcompressor:"+build_target);
-      }
-
-      // parse export dir html files, and produce a manifest
-      // ------------
-      if( options.html_manifest == true ){
-        // Adjust phantomizer-project-manifest options
-        opt = grunt.config.get("phantomizer-project-manifest");
-        if(!opt[tgt_env]) opt[tgt_env] = {};
-        if(!opt[tgt_env].options) opt[tgt_env].options = {};
-
-        // apply for the current options
-        opt[tgt_env].options.target_path = options.export_dir+"/";
-
-        // update grunt config instance
-        grunt.config.set("phantomizer-project-manifest", opt);
-
-        tasks.push("phantomizer-project-manifest:"+tgt_env);
       }
 
       // parse export dir html files, and produce a manifest
