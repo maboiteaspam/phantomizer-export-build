@@ -286,6 +286,43 @@ Adjust options</p>
         
       
         
+        <h2 id="parse-export-dir-html-files-and-produce-a-manifest">parse export dir html files, and produce a manifest</h2>
+
+        
+      
+        
+        
+        
+          <div class='highlight'><pre>      <span class="hljs-keyword">if</span>( options.html_manifest != <span class="hljs-literal">false</span> ){</pre></div>
+        
+      
+        
+        <p>Adjust phantomizer-project-manifest options</p>
+
+        
+          <div class='highlight'><pre>        opt = grunt.config.get(<span class="hljs-string">"phantomizer-project-manifest"</span>);
+        <span class="hljs-keyword">if</span>(!opt[tgt_env]) opt[tgt_env] = {};
+        <span class="hljs-keyword">if</span>(!opt[tgt_env].options) opt[tgt_env].options = {};</pre></div>
+        
+      
+        
+        <p>apply for the current options</p>
+
+        
+          <div class='highlight'><pre>        opt[tgt_env].options.target_path = options.export_dir+<span class="hljs-string">"/"</span>;</pre></div>
+        
+      
+        
+        <p>update grunt config instance</p>
+
+        
+          <div class='highlight'><pre>        grunt.config.set(<span class="hljs-string">"phantomizer-project-manifest"</span>, opt);
+
+        tasks.push(<span class="hljs-string">"phantomizer-project-manifest:"</span>+tgt_env);
+      }</pre></div>
+        
+      
+        
         <h2 id="compress-export-dir-html-files">compress export dir html files</h2>
 
         
@@ -319,43 +356,6 @@ Adjust options</p>
           <div class='highlight'><pre>        grunt.config.set(<span class="hljs-string">"phantomizer-dir-htmlcompressor"</span>, opt);
 
         tasks.push(<span class="hljs-string">"phantomizer-dir-htmlcompressor:"</span>+build_target);
-      }</pre></div>
-        
-      
-        
-        <h2 id="parse-export-dir-html-files-and-produce-a-manifest">parse export dir html files, and produce a manifest</h2>
-
-        
-      
-        
-        
-        
-          <div class='highlight'><pre>      <span class="hljs-keyword">if</span>( options.html_manifest == <span class="hljs-literal">true</span> ){</pre></div>
-        
-      
-        
-        <p>Adjust phantomizer-project-manifest options</p>
-
-        
-          <div class='highlight'><pre>        opt = grunt.config.get(<span class="hljs-string">"phantomizer-project-manifest"</span>);
-        <span class="hljs-keyword">if</span>(!opt[tgt_env]) opt[tgt_env] = {};
-        <span class="hljs-keyword">if</span>(!opt[tgt_env].options) opt[tgt_env].options = {};</pre></div>
-        
-      
-        
-        <p>apply for the current options</p>
-
-        
-          <div class='highlight'><pre>        opt[tgt_env].options.target_path = options.export_dir+<span class="hljs-string">"/"</span>;</pre></div>
-        
-      
-        
-        <p>update grunt config instance</p>
-
-        
-          <div class='highlight'><pre>        grunt.config.set(<span class="hljs-string">"phantomizer-project-manifest"</span>, opt);
-
-        tasks.push(<span class="hljs-string">"phantomizer-project-manifest:"</span>+tgt_env);
       }</pre></div>
         
       
